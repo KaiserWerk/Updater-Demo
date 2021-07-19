@@ -2,13 +2,16 @@ package main
 
 import (
 	"fmt"
-	goversion "github.com/hashicorp/go-version"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"time"
+
+	goversion "github.com/hashicorp/go-version"
 )
 
 // app binary is in the same folder as the launcher
@@ -43,10 +46,10 @@ func main() {
 	handleError(err)
 
 	if localVer.LessThan(remoteVer) {
+		fmt.Println("local version is lower, initiating update process...")
 		// initiate update process
-		resp, err := cl.Get("http://localhost:7000/download-app")
+		resp, err := cl.Get("http://localhost:7000/app-download")
 		handleError(err)
-		defer resp.Body.Close()
 
 		if resp.StatusCode != 200 {
 			log.Fatal("could not download: status 500: ", err.Error())
@@ -54,29 +57,25 @@ func main() {
 
 		fh, err := os.OpenFile(appFilename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0744)
 		handleError(err)
-		defer fh.Close()
 
 		_, err = io.Copy(fh, resp.Body)
 		handleError(err)
+
+		_ = resp.Body.Close()
+		_ = fh.Close()
+	} else {
+		fmt.Println("app is at the most recent version")
 	}
 
 	// start app
-	//go func() {
 	fmt.Println("starting app.exe...")
-	cmd := exec.Command(appFilename)
-	//bd, _ := filepath.Abs(".")
+	time.Sleep(2 * time.Second)
+
+	bd, _ := filepath.Abs(".")
+	cmd := exec.Command("cmd.exe", "/c", "start", filepath.Join(bd, appFilename))
 	//cmd.Dir = bd
-	err = cmd.Run()
-	if err == nil {
-		cmd.Process.Release()
-	} else {
-		log.Fatal("could not start process:", err.Error())
-	}
-
-	//}()
-	//time.Sleep(200 * time.Millisecond)
-
-	// shutdown self
+	_ = cmd.Run()
+	_ = cmd.Process.Release()
 
 }
 
