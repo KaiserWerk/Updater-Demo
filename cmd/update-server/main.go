@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	version = "1.0.0"
+	appVersion = "1.0.1"
+	launcherVersion = "1.0.3"
 )
 
 func main() {
@@ -24,22 +25,39 @@ func main() {
 }
 
 func launcherVersionHandler(w http.ResponseWriter, r *http.Request) {
-
+	w.Write([]byte(launcherVersion))
 }
 
 func launcherDownloadHandler(w http.ResponseWriter, r *http.Request) {
+	bp, _ := filepath.Abs(".")
+	filename := filepath.Join(bp, "data", fmt.Sprintf("launcher_v%s.exe", launcherVersion))
+	fmt.Println("launcher file:", filename)
+	if !fileExists(filename) {
+		fmt.Println("file does not exist")
+		w.WriteHeader(500)
+		w.Write([]byte("nope"))
+		return
+	}
 
+	cont, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println("could not read file file: " + err.Error())
+		w.WriteHeader(500)
+		w.Write([]byte("nope"))
+		return
+	}
+
+	w.Write(cont)
 }
 
 func appVersionHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(version))
+	w.Write([]byte(appVersion))
 }
 
 func appDownloadHandler(w http.ResponseWriter, r *http.Request) {
-	// nur die aktuellste version
 	bp, _ := filepath.Abs(".")
-	filename := filepath.Join(bp, "data", fmt.Sprintf("app_v%s.exe", version))
-	fmt.Println("filename:", filename)
+	filename := filepath.Join(bp, "data", fmt.Sprintf("app_v%s.exe", appVersion))
+	fmt.Println("app file:", filename)
 	if !fileExists(filename) {
 		fmt.Println("file does not exist")
 		w.WriteHeader(500)
