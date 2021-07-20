@@ -46,7 +46,7 @@ func main() {
 	handleError(err)
 
 	if localVer.LessThan(remoteVer) {
-		fmt.Println("local version is lower, initiating update process...")
+		fmt.Println("local app version is lower, initiating update process...")
 		// initiate update process
 		resp, err := cl.Get("http://localhost:7000/app-download")
 		handleError(err)
