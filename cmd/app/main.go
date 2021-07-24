@@ -37,13 +37,13 @@ func main() {
 	handleError(err)
 
 	if localVer.LessThan(remoteVer) {
-		fmt.Println("local version is lower, initiating update process...")
+		fmt.Println("local launcher version is lower, initiating update process...")
 		// initiate update process
 		resp, err := cl.Get("http://localhost:7000/launcher-download")
 		handleError(err)
 
 		if resp.StatusCode != 200 {
-			log.Fatal("could not download: status 500: ", err.Error())
+			log.Fatalf("expected status code 200, got %d", resp.StatusCode)
 		}
 
 		fh, err := os.OpenFile(launcherFilename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0744)
