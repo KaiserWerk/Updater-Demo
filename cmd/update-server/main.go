@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/KaiserWerk/Updater-Demo/internal/assets"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -9,10 +10,6 @@ import (
 	"path/filepath"
 )
 
-var (
-	appVersion = "1.0.1"
-	launcherVersion = "1.0.3"
-)
 
 func main() {
 	router := http.NewServeMux()
@@ -25,13 +22,13 @@ func main() {
 }
 
 func launcherVersionHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(launcherVersion))
+	w.Write([]byte(assets.GetLauncherVersion()))
 }
 
 func launcherDownloadHandler(w http.ResponseWriter, r *http.Request) {
 	bp, _ := filepath.Abs(".")
-	filename := filepath.Join(bp, "data", fmt.Sprintf("launcher_v%s.exe", launcherVersion))
-	fmt.Println("launcher file:", filename)
+	filename := filepath.Join(bp, "data", fmt.Sprintf( "launcher_v%s.exe", assets.GetLauncherVersion()))
+	fmt.Println("serving launcher file", filename)
 	if !fileExists(filename) {
 		fmt.Println("file does not exist")
 		w.WriteHeader(500)
@@ -51,13 +48,13 @@ func launcherDownloadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func appVersionHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(appVersion))
+	w.Write([]byte(assets.GetAppVersion()))
 }
 
 func appDownloadHandler(w http.ResponseWriter, r *http.Request) {
 	bp, _ := filepath.Abs(".")
-	filename := filepath.Join(bp, "data", fmt.Sprintf("app_v%s.exe", appVersion))
-	fmt.Println("app file:", filename)
+	filename := filepath.Join(bp, "data", fmt.Sprintf("app_v%s.exe", assets.GetAppVersion()))
+	fmt.Println("serving app file", filename)
 	if !fileExists(filename) {
 		fmt.Println("file does not exist")
 		w.WriteHeader(500)
